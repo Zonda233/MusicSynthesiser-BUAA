@@ -6,5 +6,6 @@ class Tone:
                  arr_phase: np.array):
         if arr_amplitude.size != arr_phase.size:
             raise ValueError("arr_amplitude and arr_phase should have the same size")
-        self.amp = arr_amplitude.copy()
+        velo = np.sqrt(np.mean(arr_amplitude ** 2))
+        self.amp = arr_amplitude / velo
         self.pha = arr_phase.copy()

@@ -29,7 +29,7 @@ class Note:
             amp = self.tone.amp[i]
             pha = self.tone.pha[i]
             out += amp * np.cos((i + 1) * base * t + pha)
-        out = out / size
+        out = out * self.velo
 
         # 对波形进行包络
         for i in range(self.dura):
