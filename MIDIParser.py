@@ -8,7 +8,11 @@ import wave
 
 tone_violin = Tone(np.array([25.990, 7.031, 1.519, 4.561, 1.807, 1.475, 0.808, 1.352, 0.853, 0.258]),
                    np.array([-2.637, 2.062, 0.666, 0.712, 1.692, -0.564, 0.964, -0.129, -0.670, 2.284]))
-common_env = Enveloper(200, 200, 0.5, 20000)
+tone_piano = Tone(np.array([5.541, 3.168, 0.406, 1.549, 1.722, 0.449, 1.395, 0.111, 0.706, 0.126, 0.351, 0.117, 0.199, 0.048, 0.276, 0.276, 0.079, 0.084, 0.084, 0.041]),
+                  np.array([0.806, -0.380, 1.254, -1.752, 2.697, -1.310, -0.032, -1.039, 1.152, -0.854, 2.135, -0.646, 0.482, 0.560, 1.278, 1.278, -0.377, -1.680, -1.680, -3.048]),
+                  np.array([92600, 90000, 66000, 86000, 57000, 30000, 24000, 24000, 21000, 21000, 21000, 21000, 21000, 21000, 21000, 21000, 21000, 21000, 21000, 21000]))
+env_common = Enveloper(200, 200, 0.5, 20000)
+env_piano = Enveloper(0, 0, 1, 20000)
 
 def Parser(midi):
     '''解析 MIDI 文件并生成音符的生成器'''
@@ -27,7 +31,7 @@ def Parser(midi):
                     # 计算音符时长
                     duration = int(time - start_time)
                     # 生成音符对象，音量为0表示音符抬起
-                    yield Note(int(sr * start_time / 1440), velo, duration, pitch, tone_violin, common_env)
+                    yield Note(int(sr * start_time / 720), velo, duration, pitch, tone_violin, env_common)
                     # 从缓存中移除该音符
                     del note_cache[msg.note]
             else:

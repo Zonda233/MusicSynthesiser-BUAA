@@ -18,6 +18,12 @@ class Note:
         self.tone = tone  # 音色 Tone对象
         self.env = enveloper  # 包络 Enveloper对象
 
+    def set_end(self, end_time):
+        self.dura = end_time - self.pos
+
+    def get_end(self) -> int:
+        return self.pos + self.dura
+
     def wave(self) -> np.array:
         size = self.dura + self.env.R
         out = np.zeros(size)
@@ -32,7 +38,6 @@ class Note:
             if self.tone.dec is not None:
                 dec_time = min(self.tone.dec[i], self.dura)
                 env_t = np.linspace(1, 0, dec_time)
-                env_t = env_t ** 2
                 wave[0:dec_time] *= env_t
                 wave[dec_time:self.dura + self.env.R] = 0
             out += wave
