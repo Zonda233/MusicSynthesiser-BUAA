@@ -8,7 +8,7 @@ class Note:
                  position: int,
                  velocity: float,
                  duration: int,
-                 pitch: int,
+                 pitch: float,
                  tone: Tone,
                  enveloper: Enveloper):
         self.pos = position  # 位置 单位：采样点
