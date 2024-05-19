@@ -5,19 +5,14 @@ from typing import Generator
 from Note import Note
 from mido import MidiFile
 from Tone import Tone
+import Tone
 from Enveloper import Enveloper
 import wave
 from typing import List
 
-tone_violin = Tone(np.array([25.990, 7.031, 1.519, 4.561, 1.807, 1.475, 0.808, 1.352, 0.853, 0.258]),
-                   np.array([-2.637, 2.062, 0.666, 0.712, 1.692, -0.564, 0.964, -0.129, -0.670, 2.284]))
-tone_piano = Tone(np.array([5.541, 3.168, 0.406, 1.549, 1.722, 0.449, 1.395, 0.111, 0.706, 0.126, 0.351, 0.117, 0.199, 0.048, 0.276, 0.276, 0.079, 0.084, 0.084, 0.041]),
-                  np.array([0.806, -0.380, 1.254, -1.752, 2.697, -1.310, -0.032, -1.039, 1.152, -0.854, 2.135, -0.646, 0.482, 0.560, 1.278, 1.278, -0.377, -1.680, -1.680, -3.048]),
-                  np.array([92600, 90000, 66000, 86000, 57000, 30000, 24000, 24000, 21000, 21000, 21000, 21000, 21000, 21000, 21000, 21000, 21000, 21000, 21000, 21000]))
-env_common = Enveloper(200, 200, 0.5, 20000)
+env_common = Enveloper(5000, 200, 1, 5000)
 env_piano = Enveloper(0, 0, 1, 10000)
 
-tone_preset = [tone_piano, tone_violin]
 env_preset = [env_common, env_piano]
 
 def generate(filename: str, output_filename: str):
@@ -31,15 +26,11 @@ def generate(filename: str, output_filename: str):
 
     total_msg_num = len(midi.merged_track)
     msg_cnt = 0
-    track_cnt = 0
-
-    # for track in midi.tracks:
-
     tempo = 0
     time_cur = int(0)  # 单位：1/tpb 微秒
     note_list: List[Note] = [[None] * 128 for _ in range(32)]  # 当前每个不同音高的音符列表
-    tone = tone_preset[1]
-    env = env_preset[0]
+    tone = Tone.tone_piano
+    env = env_preset[1]
     pedal_on = False
 
     for msg in midi.merged_track:
@@ -58,9 +49,6 @@ def generate(filename: str, output_filename: str):
                     if note_prev.pos + note_wave_size > out.size:
                         out = np.append(out, np.zeros(note_prev.pos + note_wave_size - out.size + 10000))
                     out[note_prev.pos:note_prev.pos + note_wave.size] += note_wave
-                    max_amp = max(out[note_prev.pos:note_prev.pos + note_wave.size])
-                    if max_amp > 30000:
-                        out[note_prev.pos:note_prev.pos + note_wave.size] *= 30000 / max_amp
 
                 note_list[channel][pitch] = Note(convert(time_cur), velo, 0, frequencies[pitch] / 2, tone, env)
 
@@ -77,10 +65,13 @@ def generate(filename: str, output_filename: str):
 
         msg_cnt += 1
         print("\r", end="")
-        print(f"Total Process: {msg_cnt: >7} / {total_msg_num: >7}, track {track_cnt: >3}", end="")
+        print(f"Total Process: {msg_cnt: >7} / {total_msg_num: >7}", end="")
         sys.stdout.flush()
 
-    track_cnt += 1
+    max_amp = max(np.abs(out[:]))
+    out = out / max_amp * 30000
+    # high_amp = np.abs(out) > 5000
+    # out[high_amp] = np.sign(out[high_amp]) * (5000 + (np.abs(out[high_amp]) - 5000) / (max_amp - 5000) * 5000)
 
     testfile = wave.open(output_filename, 'w')
     testfile.setnchannels(1)
