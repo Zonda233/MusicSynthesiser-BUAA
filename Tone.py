@@ -31,8 +31,10 @@ class Tone_Piano(Tone):
 tone_piano = Tone_Piano()
 
 class Tone_Violin(Tone):
-    amp = np.array([0.976, 0.159, 0.053, 0.095, 0.061, 0.040, 0.025, 0.061, 0.008, 0.021, 0.007, 0.005, 0.008, 0.003, 0.002, 0.003, 0.002, 0.001, 0.001, 0.001])
+    amp = np.array([1.976, 0.159, 0.053, 0.095, 0.061, 0.040, 0.025, 0.061, 0.008, 0.021, 0.007, 0.005, 0.008, 0.003, 0.002, 0.003, 0.002, 0.001, 0.001, 0.001])
     pha = np.array([-2.668, -1.857, 1.740, -1.102, 3.003, -0.211, -0.053, -0.143, -0.399, -1.253, 2.957, -2.237, -1.754, -1.392, -0.800, -1.351, 0.105, -0.907, -0.398, -1.601])
+    vibrato_speed = 5 * 2 * np.pi / sr
+    vibrato_amp = 0.15
 
     def wave(self, velocity: float, duration: int, pitch: int):
         out = np.zeros(duration)
@@ -40,6 +42,7 @@ class Tone_Violin(Tone):
         base = 2 * np.pi * float(pitch) / float(sr)
         for i in range(self.amp.size):
             wave = self.amp[i] * np.cos((i + 1) * base * t + self.pha[i])
+            wave *= 1 + self.vibrato_amp * np.cos(self.vibrato_speed * t + self.pha[i])
             out += wave
         out = out * velocity
         return out
