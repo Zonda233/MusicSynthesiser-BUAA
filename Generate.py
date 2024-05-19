@@ -30,7 +30,7 @@ def generate(filename: str, output_filename: str):
     time_cur = int(0)  # 单位：1/tpb 微秒
     note_list: List[Note] = [[None] * 128 for _ in range(32)]  # 当前每个不同音高的音符列表
     tone = Tone.tone_piano
-    env = env_preset[1]
+    env = env_piano
     pedal_on = False
 
     for msg in midi.merged_track:
