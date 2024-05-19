@@ -11,8 +11,6 @@ import wave
 env_common = Enveloper(5000, 200, 1, 5000)
 env_piano = Enveloper(0, 0, 1, 10000)
 
-env_preset = [env_common, env_piano]
-
 def generate(filename: str, output_filename: str):
     midi = MidiFile(filename)
     audio_len = int(midi.length * sr)
