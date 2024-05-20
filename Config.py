@@ -1,4 +1,5 @@
 import numpy as np
+import wave
 
 sr = 44100
 pi = np.pi
