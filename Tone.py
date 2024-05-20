@@ -137,6 +137,7 @@ class Tone_Drum(Tone):
         return adjusted_waveform
 
 tone_void = Tone_Void
+tone_sine = Tone_Flat(np.array([2]), np.array([0]))
 tone_piano = Tone_Piano()
 tone_flute = Tone_Vibrate(np.array([0.813, 0.489, 0.189, 0.228, 0.110, 0.025, 0.015, 0.009, 0.005, 0.005, 0.003, 0.001, 0.002, 0.001, 0.001]),
                           np.array([1.772, 0.379, 2.269, 1.275, 1.536, -2.139, -0.177, 1.028, 1.765, 2.090, 2.352, 1.728, 2.498, 0.801, 2.217]),

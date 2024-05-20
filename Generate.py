@@ -12,7 +12,7 @@ tones = [Tone.tone_flute, Tone.tone_oboe, Tone.tone_clarinet, Tone.tone_bassoon,
          Tone.tone_trumpet, Tone.tone_tuba, Tone.tone_tuba, Tone.tone_drum, Tone.tone_drum,
          Tone.tone_drum, Tone.tone_drum, Tone.tone_drum, Tone.tone_violin, Tone.tone_violin,
          Tone.tone_viola, Tone.tone_cello, Tone.tone_double_bass]
-envs = [Enveloper.env_common] * 23
+envs = [Enveloper.env_violin] * 23
 
 tpb = [0]
 total_msg_num = [0]
@@ -94,9 +94,11 @@ def generate_single_track(out, track, tone, env):
         time_cur += ticks * tempo
         if not msg.is_meta:
             channel = msg.channel
-            if msg.type == 'note_on':
+            if msg.type == 'note_on' or msg.type == 'note_off':
                 pitch = msg.note
                 note_prev = note_list[channel][pitch]
+                if msg.type == 'note_off':
+                    msg.velocity = 0
                 velo = msg.velocity * channel_velo[channel]   # * channel_breath[channel] / 128
                 if not (pedal_on[channel] and msg.velocity == 0):
                     if note_prev is not None:
