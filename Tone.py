@@ -1,4 +1,5 @@
 from Config import *
+import math
 
 def get_wav(filename: str) -> np.ndarray:
     """读取.wav文件并返回numpy数组"""
@@ -118,8 +119,39 @@ class Tone_Vibrate(Tone):
         out = out * velocity
         return out
 
-# class Tone_Brass(Tone):
-#
+class Tone_Brass(Tone):
+    def __init__(self,
+                 arr_amplitude: np.array,
+                 arr_phase: np.array,
+                 arr_var: np.array,
+                 vibrato_speed: float,
+                 vibrato_amp: float,
+                 random_start: int):
+        self.amp = arr_amplitude
+        self.pha = arr_phase
+        self.var = arr_var
+        self.vib_spd = vibrato_speed
+        self.vib_amp = vibrato_amp
+        self.rnd_st = random_start
+        rnd_arr_raw = np.random.normal(0, 1, 51)
+        self.rnd_arr = np.zeros(10000)
+        for i in range(50):
+            self.rnd_arr[200 * i:200 * (i + 1)] = np.linspace(rnd_arr_raw[i], rnd_arr_raw[i + 1], 200)
+    def wave(self, velocity: float, duration: int, pitch: int):
+        out = np.zeros(duration)
+        t = np.array(range(duration)).astype(np.float64)
+        base = 2 * np.pi * float(pitch) / float(sr)
+        for i in range(self.amp.size):
+            wave = self.amp[i] * np.cos((i + 1) * base * t + self.pha[i])
+            if i < self.rnd_st:
+                wave *= 1 + self.vib_amp * np.cos(self.vib_spd * t + self.pha[i])
+            else:
+                rnd = np.tile(self.rnd_arr, math.ceil(duration / 10000))
+                rnd = 1 + self.var[i] * rnd
+                wave *= rnd[0:duration]
+            out += wave
+        out = out * velocity
+        return out
 
 class Tone_Drum(Tone):
     def __init__(self, filename: str):
@@ -151,9 +183,10 @@ tone_clarinet = Tone_Vibrate(np.array([0.818, 0.018, 0.511, 0.044, 0.242, 0.044,
 tone_bassoon = Tone_Vibrate(np.array([0.079, 0.061, 0.139, 0.686, 0.681, 0.077, 0.048, 0.079, 0.075, 0.056, 0.100, 0.017, 0.041, 0.025, 0.011, 0.007, 0.018, 0.013, 0.006, 0.006]),
                             np.array([-1.101, -2.556, -2.259, 2.080, 2.321, 0.171, -2.176, 1.527, -0.197, 0.595, 0.345, -1.666, 2.316, -0.075, -1.274, 2.391, 1.287, 1.563, 1.127, 1.127]),
                             4 * 2 * np.pi / sr, 0.25)
-tone_horn = Tone_Vibrate(np.array([0.292, 0.793, 0.459, 0.164, 0.181, 0.054, 0.082, 0.069, 0.014, 0.013, 0.010, 0.009, 0.013, 0.015, 0.004, 0.002, 0.002, 0.003, 0.003, 0.002]),
-                         np.array([2.829, 1.900, -0.697, 0.455, 1.765, -3.124, 1.265, 1.729, 1.626, 1.962, -2.402, -0.665, -0.830, -1.235, -2.579, -0.016, 0.251, 1.250, -0.689, 2.988]),
-                         0.8 * 2 * np.pi / sr, 0.3)
+tone_horn = Tone_Brass(np.array([0.292, 0.793, 0.459, 0.164, 0.181, 0.054, 0.082, 0.069, 0.014, 0.013, 0.010, 0.009, 0.013, 0.015, 0.004, 0.002, 0.002, 0.003, 0.003, 0.002]),
+                       np.array([2.829, 1.900, -0.697, 0.455, 1.765, -3.124, 1.265, 1.729, 1.626, 1.962, -2.402, -0.665, -0.830, -1.235, -2.579, -0.016, 0.251, 1.250, -0.689, 2.988]),
+                       np.array([0, 0, 0, 0.1, 0.05, 0.05, 0.05, 0.05, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.02]),
+                       0.8 * 2 * np.pi / sr, 0.5, 3)
 tone_trumpet = Tone_Vibrate(np.array([0.424, 0.382, 0.398, 0.421, 0.457, 0.233, 0.139, 0.103, 0.145, 0.115, 0.082, 0.046, 0.032, 0.026, 0.021, 0.022, 0.015, 0.010, 0.009, 0.008]),
                             np.array([-2.077, -2.246, 0.436, 0.774, 0.911, 1.323, 1.099, -1.788, -1.556, -1.699, -1.729, 2.415, 0.924, 1.144, -0.485, 0.021, 0.372, 1.014, -1.870, -1.827]),
                             0.8 * 2 * np.pi / sr, 0.3)
